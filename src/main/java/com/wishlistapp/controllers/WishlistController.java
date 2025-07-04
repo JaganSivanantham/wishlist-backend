@@ -16,7 +16,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/wishlists")
-@CrossOrigin(origins = "http://localhost:3000") // Allow React app to access
+@CrossOrigin(origins = "http://localhost:3000","https://wishlist-frontend.netlify.app/login") // Allow React app to access
 public class WishlistController {
 
     @Autowired
