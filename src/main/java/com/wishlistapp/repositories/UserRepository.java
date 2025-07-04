@@ -1,5 +1,5 @@
 package com.wishlistapp.repositories;
-
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories; 
 import com.wishlistapp.models.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
