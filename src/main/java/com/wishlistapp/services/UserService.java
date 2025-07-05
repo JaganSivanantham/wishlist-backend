@@ -31,21 +31,41 @@ public class UserService {
         return Optional.of(userRepository.save(user));
     }
 
-    public String loginUser(String emailOrUsername, String password) {
-        Optional<User> userOptional = userRepository.findByEmail(emailOrUsername);
-        if (userOptional.isEmpty()) {
-            userOptional = userRepository.findByUsername(emailOrUsername);
-        }
+   // Inside UserService.java, within your loginUser method
+public String loginUser(String emailOrUsername, String password) {
+    System.out.println("--- Login Attempt Start ---");
+    System.out.println("Attempting login for: " + emailOrUsername);
 
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            // In a real app: compare hashed passwords
-           if (bCryptPasswordEncoder.matches(password, user.getPasswordHash())) { 
-                return MOCK_TOKEN_PREFIX + user.getId(); // Return a mock token
-            }
-        }
-        return null; // Login failed
+    Optional<User> userOptional = userRepository.findByEmail(emailOrUsername);
+    if (userOptional.isEmpty()) {
+        userOptional = userRepository.findByUsername(emailOrUsername);
     }
+
+    if (userOptional.isEmpty()) {
+        System.out.println("User NOT found in database for: " + emailOrUsername);
+        System.out.println("--- Login Attempt End (User Not Found) ---");
+        return null; // User not found
+    }
+
+    User user = userOptional.get();
+    System.out.println("User found: " + user.getUsername());
+    // For debugging, you can print the provided and stored passwords.
+    // REMOVE THESE LINES AFTER DEBUGGING FOR SECURITY!
+    System.out.println("Provided password (plain): " + password);
+    System.out.println("Stored password (hashed): " + user.getPasswordHash());
+
+    if (bCryptPasswordEncoder.matches(password, user.getPasswordHash())) {
+        System.out.println("Password MATCHED for user: " + user.getUsername());
+        String mockToken = MOCK_TOKEN_PREFIX + user.getId();
+        System.out.println("Generated mock token: " + mockToken);
+        System.out.println("--- Login Attempt End (Success) ---");
+        return mockToken; // Return a mock token
+    } else {
+        System.out.println("Password MISMATCH for user: " + user.getUsername());
+        System.out.println("--- Login Attempt End (Password Mismatch) ---");
+        return null; // Password does not match
+    }
+}
 
     public Optional<User> getUserByToken(String token) {
         if (token != null && token.startsWith(MOCK_TOKEN_PREFIX)) {
