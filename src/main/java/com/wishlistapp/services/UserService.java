@@ -3,6 +3,7 @@ package com.wishlistapp.services;
 import com.wishlistapp.models.User;
 import com.wishlistapp.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -13,6 +14,8 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+     @Autowired // <-- Inject BCryptPasswordEncoder
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     // Mock authentication token storage for simplicity
     private static final String MOCK_TOKEN_PREFIX = "mock_token_";
@@ -23,7 +26,7 @@ public class UserService {
             return Optional.empty(); // User already exists
         }
         // In a real app: hash password here
-        user.setPasswordHash(user.getPasswordHash()); // Storing as plain for mock, hash it!
+       user.setPasswordHash(bCryptPasswordEncoder.encode(user.getPasswordHash()));
         user.setId(UUID.randomUUID().toString()); // Generate ID
         return Optional.of(userRepository.save(user));
     }
@@ -37,7 +40,7 @@ public class UserService {
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             // In a real app: compare hashed passwords
-            if (user.getPasswordHash().equals(password)) { // Mock password check
+           if (bCryptPasswordEncoder.matches(password, user.getPasswordHash())) { 
                 return MOCK_TOKEN_PREFIX + user.getId(); // Return a mock token
             }
         }
